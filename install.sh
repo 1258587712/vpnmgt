@@ -12,8 +12,6 @@ fi
 
 
 #echo ${workdir}/$0
-
-
 cron_install(){ 
 tmpdir='/opt/soft/'    
 [ -e ${tmpdir} ] && cd ${tmpdir} || mkdir -p ${tmpdir} && cd ${tmpdir} 
