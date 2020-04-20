@@ -1,0 +1,305 @@
+{% extends "base.html" %}
+{% block header_ol %}
+{% endblock %}
+{% block header_div %}
+
+<form class="form-inline" action="/{{title}}" method="post"  accept-charset="UTF-8">
+    {% csrf_token %}
+    <div class="input-group">
+      <input type="text" class="form-control" aria-label="..." name="search_text" value="{{search_text}}">
+      <div class="input-group-btn">
+          <select id="select_node" name="select_node" class="form-control" >
+          <option value="">VPN节点</option>
+            {% for list in node_list %}
+                <option value="{{list.id}}">{{list.ip}}:{{list.port}}</option>
+            {% endfor %}
+        </select>
+        <select  id="user_enable" name="user_enable" class="form-control">
+          <option value="">是否启用？</option>
+          <option value="True">是</option>
+          <option value="False">否</option>
+        </select>
+        <button type="submit" class="btn btn-primary" name="search">搜索</button>
+      </div>
+    </div>
+        <div class="pull-right">
+            <a class="btn btn-primary"  data-toggle="modal" data-target="#myModal"  onclick="span_ch('more');save.value='';input_email.value='';input_enable.checked='';input_enable_lease.checked='';start_time.value='';end_time.value='';start_time.disabled=false;end_time.disabled=false;user_node_refresh({{node_list|length}});">
+              批量添加
+            </a>
+            <a class="btn btn-primary"  data-toggle="modal" data-target="#myModal"  onclick="span_ch('');save.value='';input_enable.checked='';input_email.value='';input_enable_lease.checked='';start_time.value='';end_time.value='';start_time.disabled=false;end_time.disabled=false;user_node_refresh({{node_list|length}});">
+              添加
+            </a>
+        </div>
+
+
+<!-- 模态框（Modal） -->
+<div class="modal " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                   添加用户
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-inline" id="more" title="">
+                    <label for="input_email" class="col-sm-3 control-label">邮箱地址</label>
+                    <span id="morespan"> </span>                        
+                </div>
+                <br>
+                <div class="form-inline">
+                    <label for="user_node" class="col-sm-3 control-label">节点</label>
+                    <select  id="user_node" name="user_node"  class="selectpicker"  multiple data-live-search="true"> <!--multiple-->
+                        {% for list in node_list %}
+                            <option value='{{list.id}}'>{{list.ip}}:{{list.port}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <br>
+                <div class="form-inline">
+                    <label class="col-sm-3 control-label" for="input_enable_lease"  > 不使用租期 </label>
+                    <input type="checkbox" name="input_enable_lease" id="input_enable_lease" {{input_enable_lease}} onclick="if (input_enable_lease.checked) { start_time.value='';end_time.value='';start_time.disabled=true;end_time.disabled=true} else {start_time.disabled=false;end_time.disabled=false }">
+                </div>
+                <br>
+                <div class="form-inline">
+                    <label for="input_time" class="col-sm-3 control-label">租用时间段</label>
+                    <div   id="input_time" class="input_time">
+                       <input id="start_time" class="form-control" type="text" value="{{start_time}}" name="start_time" placeholder="Start time">
+                        <label for="end_time" > To </label>
+                       <input id="end_time" class="form-control" type="text" value="{{end_time }}" name="end_time" placeholder="End time">
+                    </div>
+                </div>
+                <br>
+                <div class="form-inline">
+                    <label class="col-sm-3 control-label" for="input_enable"  > 是否立即启用账号 </label>
+                    <input type="checkbox" name="input_enable" id="input_enable" {{input_enable}}>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                {{add_node_stats}}
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+
+                <button type="submit" class="btn btn-success" id="save" name="save" value="{{hid}}">保存</button>
+                <a  class="btn btn-primary" value="{{edit}}" onclick="save.value='';input_email.value='';input_enable.checked='';start_time.value='';end_time.value='';user_node_refresh({{node_list|length}});">重置表单</a> <!--input_enable.checked='checked';-->               
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+
+</div><!-- /.myModal -->
+
+<script type="text/javascript">
+    function span_ch(arr) {
+        if (arr == "more"){
+            var more_value=`{{input_email}}`
+            var value=""
+        }
+        else{
+            var more_value=""
+            var value=`{{input_email}}`
+        }
+        
+        var htmlstr='<textarea class="form-control" rows="5" name="input_email" id="input_email" cols="25"  placeholder="test1@meilele.com&#10;test2@meilele.com">'
+        if (arr == "more"){
+            str=more_value.split()
+            for (var i=0;i<str.length;i++){
+                htmlstr=htmlstr+str[i]           
+            }
+            
+
+            htmlstr=htmlstr+'</textarea>';
+        }
+        else{
+            
+            var htmlstr='<input type="email" class="form-control" size="24" name="input_email" id="input_email" value="'+value+'" placeholder="email">';
+        }
+        morespan.innerHTML = htmlstr
+
+   }
+   function user_node(arr) {
+        for (var i=0;i<arr.length;i++)
+        {
+            var num=arr[i];
+            $("#user_node").find("option[value='"+num+"']").attr("selected",true);
+        }
+        $('.selectpicker').selectpicker('refresh');
+        
+   }
+   function user_node_refresh(arr) {
+        //arr={{node_list|length}}
+
+        var opts = document.getElementById("user_node");
+        for (var i=0;i<arr;i++)
+        {
+            
+            opts.options[i].selected=false;
+            //$('#user_node').options[i].selected= false;
+        }
+        $('.selectpicker').selectpicker('refresh');
+
+   }
+    jQuery(function(){
+        jQuery('#start_time').datetimepicker({
+            format:'Y-m-d H:00:00',
+            onShow:function( ct ){
+                this.setOptions({ maxDate:jQuery('#end_time').val()?jQuery('#end_time').val():false } )
+            },
+            timepicker:true
+        });
+        jQuery('#end_time').datetimepicker({
+            format:'Y-m-d H:00:00',
+            onShow:function( ct ){
+                this.setOptions({ minDate:jQuery('#start_time').val()?jQuery('#start_time').val():false })
+            },
+            timepicker:true
+        });
+    });
+     $(window).on('load', function () {
+         $('#user_node .selectpicker').selectpicker({'selectedText': 'cat' });
+        // $('.selectpicker').selectpicker('hide');
+     });
+    if ({{user_node |length}} >0){
+        user_node({{user_node |safe}})
+    }
+    if ("{{more}}"=="more"){
+        span_ch('more')
+    }
+    else{
+        span_ch('')
+    }
+    
+    if ("{{edit}}" == "") {
+        $('#myModal').modal('hide')
+    }
+    else{
+        $('#myModal').modal('show')
+        
+        
+    }
+    document.getElementById('user_enable').value="{{user_enable}}"
+    document.getElementById('select_node').value="{{select_node}}"
+
+    //alert({{user_node |safe}})
+    
+    
+    
+    if ("{{input_enable_lease}}"=="checked"){
+        start_time.value='';
+        end_time.value='';
+        start_time.disabled=true;
+        end_time.disabled=true;
+    }
+    else{
+        start_time.disabled=false;
+        end_time.disabled=false;
+
+    }
+
+</script>
+
+{% endblock %}
+
+{% block body_table %}
+
+<table class="table" >
+    <thead>
+        <tr class="active">
+            {% for l in items %}
+                <th>{{l}}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+<tbody id="listtab">
+    {% for list in values %}
+
+
+    <tr >
+        <td>{{list.email}}</td>
+        <td>{{list.name}}</td>
+        <td>{{list.passwd}}</td>
+        
+        <!--<td>{{list.ip}}{{list.nodelist}}</td>-->
+        {% if list.disable_lease  %}
+            <td>是</td>
+            <td></td>
+        {% else %}
+            <td>否</td>
+            <td>{{list.start_time|date:"Y-m-d H:i:s" }} -- {{list.end_time |date:"Y-m-d H:i:s"  }}</td>
+        {% endif %}
+
+        {% if list.enable  %}
+        <td><span class="label label-success">启用</span></td>
+        {% else %}
+        <td><span class="label label-danger">禁用</span></td>
+        {% endif %}
+        <td>
+            <div class="pull-right" >
+                {% csrf_token %}
+                {% if list.enable %}
+                    <button type="submit" class="btn btn-warning btn-sm" name="disable" title="{{list.id}}" value="{{list.id}}">
+                    <span  >禁用</span>
+                    </button>
+                {% else %}
+                    <button type="submit" class="btn btn-success btn-sm" name="enable" title="{{list.id}}" value="{{list.id}}">
+                    <span  >启用</span>
+                    </button>
+                {% endif %}
+                <a class="btn btn-info btn-sm" name="edit" title="{{list.id}}" data-toggle="modal" data-target="#myModal"  value="{{list.id}}" onclick="span_ch('');save.value='{{list.id}}'; input_email.value='{{list.email}}';if ('{{list.enable}}'=='True'){input_enable.checked='checked' } else { input_enable.checked=''; } ;if ('{{list.disable_lease}}'=='True'){ input_enable_lease.checked='checked';start_time.value='';end_time.value='';start_time.disabled=true;end_time.disabled=true; } else { input_enable_lease.checked='';start_time.value='{{list.start_time|date:'Y-m-d H:i:s' }}';end_time.value='{{list.end_time |date:'Y-m-d H:i:s'  }}';start_time.disabled=false;end_time.disabled=false}; if ({{list.nodelist |length}} >0){ user_node({{list.nodelist |safe}}) }">
+                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                </a>
+                <!--
+                <button type="submit" class="btn btn-info btn-sm" name="edit" title="{{list.id}}" value="{{list.id}}">
+                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                </button>
+                -->
+
+                <button type="submit"  class="btn btn-danger btn-sm" name="del" title="{{list.id}}" value="{{list.id}}">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true" ></span>
+                </button>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+{% if  values|length > 0 and values.paginator.num_pages > 1 %}
+    <div class="pagination">
+    <button class="btn btn-default"  type="submit" name="page" value="1">
+        <!--<span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span>-->
+        &laquo;
+    </button>
+    {% if values.has_previous %}
+        <button class="btn btn-default" type="submit" name="page" value="{{ values.previous_page_number }}">
+            <!--<span class="glyphicon glyphicon-backward" aria-hidden="true"></span>-->
+            &#8249;
+        </button>
+    {%else%}
+        <button class="btn btn-default" disabled type="submit" name="page" value="">
+            <!--<span class="glyphicon glyphicon-backward" aria-hidden="true"></span>-->
+            &#8249;
+        </button>
+    {% endif %}
+    <span> Page <input type="text" class="form-control"  size=1 name="pagenum" value="{{ values.number }}">  of {{ values.paginator.num_pages }}  </span>
+
+    {% if values.has_next %}
+        <button class="btn btn-default" type="submit" name="page" value="{{ values.next_page_number }}">
+            <!--<span class="glyphicon glyphicon-forward" aria-hidden="true"></span>-->
+            &#8250;
+        </button>
+    {%else%}
+        <button class="btn btn-default" disabled type="submit" name="page" value="">
+            <!--<span class="glyphicon glyphicon-forward" aria-hidden="true"></span>-->
+            &#8250;
+        </button>
+    {% endif %}
+    <button class="btn btn-default"  type="submit" name="page" value="{{ values.paginator.num_pages }}">
+        <!--<span class="glyphicon glyphicon-fast-forward" aria-hidden="true"></span>-->
+        &raquo;
+    </button>
+</div>
+{% endif %}
+</form>
+{% endblock %}

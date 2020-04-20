@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block nav_div %}
+<div class="navbar-header">
+    <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home" aria-hidden="true"></span> </a>
+</div>
+
+<ul class="nav navbar-nav">
+    <li>
+        <a href="vpn_node" class="dropdown-toggle" data-toggle="dropdown">
+            VPN <b class="caret"></b>
+        </a>        
+        <ul class="dropdown-menu">
+            <li><a href="vpn_node">VPN服务器</a></li>            
+            <li><a href="vpn_user">VPN账号</a></li>
+            <li class="divider"></li>
+        </ul>
+    </li>
+   
+</ul>
+
+ <ul class="nav navbar-nav navbar-right">
+     <li role="presentation" class="dropdown">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+      <span > {{login_user}}</span>  <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+        <li><a href="/user" >修改密码</a></li>
+
+    </ul>
+    </li>
+     <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> 退出登录</a></li>
+</ul>
+{% endblock %}
+{% block header_ol %}
+{% endblock %}
+{% block header_div %}
+{% endblock %}

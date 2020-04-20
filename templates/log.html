@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block header_ol %}
+{% endblock %}
+{% block header_div %}
+
+<form class="form-inline" action="/{{title}}" method="post">
+    {% csrf_token %}
+    <div class="input-group">
+        <input type="text" class="form-control" aria-label="..." name="search_text" value="{{search_text}}">
+        <div class="input-group-btn">
+            <select id="log_type" name="log_type" class="form-control" >
+                <option value="">日志类型</option>
+                {% for type in type_list %}
+                    <option value='{{type.type}}'>{{type.type}}</option>
+                {% endfor %}
+            </select>
+            <select id="log_status" name="log_status" class="form-control" >
+                <option value="">执行状态</option>
+                <option value=True>成功</option>
+                <option value=False>失败</option>
+            </select>
+            <input id="start_time" class="form-control" type="text" value="{{start_time}}" name="start_time" placeholder="Start time">
+            <input id="end_time" class="form-control" type="text" value="{{end_time}}" name="end_time" placeholder="End time">
+            <button type="submit" class="btn btn-primary" name="search">搜索</button>
+
+        </div>
+    </div>
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        <div class="form-inline">
+                            <label class="control-label" for="type"  > 类型： </label>
+                            <span id="type" >{{type}}</span>
+                        </div>
+                        <div class="form-inline">
+                            <label class="control-label" for="username"  > 用户： </label>
+                            <span id="username" >{{username }}</span>
+                        </div>
+                        
+                        <div class="form-inline">
+                            <label class="control-label" for="action"  > 动作： </label>
+                            <span id="action" >{{action }}</span>
+                        </div>
+                        <div class="form-inline">
+                            <label class="control-label" for="time"  > 时间： </label>
+                            <span id="time" >{{time |date:"Y-m-d H:i:s"}}</span>
+                        </div>                       
+
+                        <div class="form-inline">
+                            <label class="control-label" for="sta"  > 状态： </label>
+                            {% if status  %}
+                               <span id="sta" class="label label-success">成功</span>
+                            {% else %}
+                                <span id="sta" class="label label-danger">失败</span>
+                            {% endif %}
+                        </div>
+                    </h4>
+
+
+                </div>
+                <div class="modal-body">
+
+                    <pre id="exec_results" style="white-space:pre-wrap;"  ondblclick="copyUrl2()">{{content}}</pre>
+                </div>
+
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+    <script type="text/javascript">
+        document.getElementById('log_status').value="{{log_status}}"
+        document.getElementById('log_type').value="{{log_type}}"
+        jQuery(function(){
+            jQuery('#start_time').datetimepicker({
+                format:'Y-m-d H:i:s',
+                onShow:function( ct ){
+                    this.setOptions({ maxDate:jQuery('#end_time').val()?jQuery('#end_time').val():false } )
+                },
+                //timepicker:false
+            });
+            jQuery('#end_time').datetimepicker({
+                format:'Y-m-d H:i:s',
+                onShow:function( ct ){
+                    this.setOptions({ minDate:jQuery('#start_time').val()?jQuery('#start_time').val():false })
+                },
+                //timepicker:false
+            });
+        });
+        if ("{{hid}}" == "") {
+            $('#myModal').modal('hide')
+        }
+        else{
+            $('#myModal').modal('show')
+        }
+    </script>
+    {% endblock %}
+
+    {% block body_table %}
+
+        <table class="table" >
+            <thead>
+                <tr class="active">
+                    {% for l in items %}
+                        <th>{{l}}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+        <tbody id="listtab">
+
+            {% for list in values %}
+            <tr >
+
+                 <td>{{list.type }}</td>
+                 <td>{{list.username }}</td>
+                 <td>{{list.action }}</td>
+                 <td>{{list.time |date:"Y-m-d H:i:s"}}</td>
+                {% if list.status  %}
+                    <td><span class="label label-success">成功</span></td>
+                {% else %}
+                    <td><span class="label label-danger">失败</span></td>
+                {% endif %}
+                <td>
+                    <div class="pull-right">
+                        <!--<a class="btn btn-info btn-sm"  data-toggle="modal" data-target="#myModal{{list.id}}"  title="执行日志">
+                          <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+                        </a>-->
+                        <button type="submit"  class="btn btn-info btn-sm" name="info" value="{{list.id}}"  title="详情">
+                          <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+                        </button>
+                    </div>
+
+
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+
+    {% if  values|length > 0 and values.paginator.num_pages > 1 %}
+        <div class="pagination">
+            <button class="btn btn-default"  type="submit" name="page" value="1" >
+                <!--<span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span>-->
+                &laquo;
+            </button>
+            {% if values.has_previous %}
+                <button class="btn btn-default" type="submit" name="page" value="{{ values.previous_page_number }}">
+                    <!--<span class="glyphicon glyphicon-backward" aria-hidden="true"></span>-->
+                    &#8249;
+                </button>
+            {%else%}
+                <button class="btn btn-default" disabled type="submit" name="page" value="" >
+                    <!--<span class="glyphicon glyphicon-backward" aria-hidden="true"></span>-->
+                    &#8249;
+                </button>
+            {% endif %}
+
+            <span> Page <input type="text" class="form-control"  size=1 name="pagenum" value="{{ values.number }}"> of {{ values.paginator.num_pages }}  </span>
+
+            {% if values.has_next %}
+                <button class="btn btn-default" type="submit" name="page" value="{{ values.next_page_number }}">
+                    <!--<span class="glyphicon glyphicon-forward" aria-hidden="true"></span>-->
+                    &#8250;
+                </button>
+            {%else%}
+                <button class="btn btn-default" disabled type="submit" name="page" value="" >
+                    <!--<span class="glyphicon glyphicon-forward" aria-hidden="true"></span>-->
+                    &#8250;
+                </button>
+            {% endif %}
+            <button class="btn btn-default"  type="submit" name="page" value="{{ values.paginator.num_pages }}">
+                <!--<span class="glyphicon glyphicon-fast-forward" aria-hidden="true"></span>-->
+                &raquo;
+            </button>
+        </div>
+    {% endif %}
+</form>
+<script type="text/javascript">
+    function copyUrl2()
+    {
+    var Url2=document.getElementById('exec_results').innerText;
+    //document.getElementById("exec_results").innerText;
+    //document.getElementById('exec_results').select(); // 选择对象
+    //document.execCommand("Copy"); // 执行浏览器复制命令
+
+    //alert(Url2);
+    if(window.clipboardData){
+	    window.clipboardData.setData("Text", Url2);
+    }
+
+
+    }
+
+</script>
+
+
+{% endblock %}
+
+

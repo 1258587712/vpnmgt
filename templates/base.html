@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <title>VPNMGT-{{ title }}</title>
+
+	<link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <link href="https://cdn.bootcss.com/bootstrap-switch/4.0.0-alpha.1/css/bootstrap-switch.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/bootstrap-switch/4.0.0-alpha.1/css/bootstrap-switch.min.css" rel="stylesheet">
+
+    <link href="https://cdn.bootcss.com/jquery-datetimepicker/2.5.20/jquery.datetimepicker.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/bootstrap-select/2.0.0-beta1/css/bootstrap-select.css" rel="stylesheet">
+
+
+
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script src="https://cdn.bootcss.com/bootstrap-switch/4.0.0-alpha.1/js/bootstrap-switch.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap-switch/4.0.0-alpha.1/js/bootstrap-switch.min.js"></script>
+
+    <script src="https://cdn.bootcss.com/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.js"></script>
+
+
+    <script src="https://img.hcharts.cn/highcharts/highcharts.js"></script>
+    <script src="https://img.hcharts.cn/highcharts/modules/exporting.js"></script>
+    <script src="https://img.hcharts.cn/highcharts/modules/oldie.js"></script>
+    <script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
+
+    <script src="https://cdn.bootcss.com/html2canvas/0.5.0-beta4/html2canvas.js"></script>
+    <script src="https://cdn.bootcss.com/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+
+    <script src="https://cdn.bootcss.com/zeroclipboard/2.3.0/ZeroClipboard.min.js"></script>
+
+    <script src="https://cdn.bootcss.com/bootstrap-select/2.0.0-beta1/js/bootstrap-select.js"></script>
+    <!--[if lt IE 9]>
+	<script src="//cdn.bootcss.com/html5shiv/r29/html5.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+<nav class="navbar navbar-default">
+
+    <div class="container">
+	<!--<div class="container-fluid">-->
+
+        {% block nav_div %}
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home" aria-hidden="true"></span> </a>
+        </div>
+
+        <ul class="nav navbar-nav">
+            <li><a href="vpn_node">服务器</a></li>            
+            <li><a href="vpn_user">账号</a></li>
+            <li><a href="vpn_log">日志</a></li>
+            <!--<li>                
+                <a href="vpn_node" class="dropdown-toggle" data-toggle="dropdown">
+                    VPN <b class="caret"></b>
+                </a>        
+                <ul class="dropdown-menu">
+                    <li><a href="vpn_node">VPN服务器</a></li>            
+                    <li><a href="vpn_user">VPN账号</a></li>
+                    <li class="divider"></li>
+                </ul>
+            </li>-->
+           
+        </ul>
+
+         <ul class="nav navbar-nav navbar-right">
+             <li role="presentation" class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+              <span > {{login_user}}</span>  <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="/user" >修改密码</a></li>
+
+            </ul>
+            </li>
+
+
+             <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> 退出登录</a></li>
+        </ul>
+        {% endblock %}
+    </div>
+</nav>
+<div class="container">
+    {% block header_ol %}
+    <ol class="breadcrumb">
+        <li><a href="/">首页</a></li>
+        <li>{{title}}</li>
+    </ol>
+    {% endblock %}
+    {% block header_div %}
+    {% endblock %}
+    <p>
+    {% block body_table %}
+        <table class="table" >
+            <thead>
+                <tr class="active">
+                    {% for l in items %}
+                        <th>{{l}}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+        <tbody id="listtab">
+            {% for list in values %}
+            <tr >
+                {% for k in keys %}
+                    {% for key,value in list.items %}
+                        {% if key == k %}
+                            <td>{{value }}</td>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+
+
+    {% endblock %}
+</div>
+
+</body>
+</html>

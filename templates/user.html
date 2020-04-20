@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block header_ol %}
+{% endblock %}
+{% block header_div %}
+
+<form class="form-inline" action="/{{title}}" method="post"  accept-charset="UTF-8">
+    {% csrf_token %}
+    <div class="input-group">
+        <input type="text" class="form-control" aria-label="..." name="search_text" value="{{search_text}}">
+        <div class="input-group-btn">
+            <select  id="user_enable" name="user_enable" class="form-control" >
+                <option value="">是否启用？</option>
+                <option value="True">是</option>
+                <option value="False">否</option>
+            </select>
+            <button type="submit" class="btn btn-primary" name="search">搜索</button>
+        </div>
+    </div>
+    <div class="pull-right">
+        <!--<button type="submit" class="btn btn-primary" name="add">添加</button>-->
+        <a type="submit" class="btn btn-primary" data-toggle="modal" data-target="#myModal" onclick="save.value='';input_name.value='';input_email.value='';input_passwd.value='';input_enable.checked='checked';">添加</a>   
+    </div>
+
+
+<!-- 模态框（Modal） -->
+<div class="modal " id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                   添加用户
+                </h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-inline">
+                    <label for="input_name" class="col-sm-3 control-label">用户名</label>
+                  <input type="text" class="form-control" name="input_name" id="input_name" value="{{input_name}}" placeholder="User name">
+
+                </div>
+                <br>
+                <div class="form-inline">
+                    <label for="input_email" class="col-sm-3 control-label">邮箱地址</label>
+                    <input type="email" class="form-control" name="input_email" id="input_email" value="{{input_email}}" placeholder='email'>
+
+                </div>
+                <br>
+                <div class="form-inline">
+                    <label for="input_passwd" class="col-sm-3 control-label">密码</label>
+                    <input type="password" class="form-control" name="input_passwd" id="input_passwd" value="{{input_passwd}}" placeholder='password'>
+
+                </div>
+                <br>
+               
+                <div class="form-inline">
+                    <label class="col-sm-3 control-label" for="input_enable"  > 是否启用账号 </label>
+                    <input type="checkbox" name="input_enable" id="input_enable" {{input_enable}}>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                {{add_node_stats}}
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+
+                <button type="submit" class="btn btn-success" id="save" name="save" value="{{hid}}">保存</button>
+                <a  class="btn btn-primary" value="{{edit}}" onclick="save.value='';input_name.value='';input_passwd.value='';input_email.value='';input_enable.checked='checked';">重置表单</a>
+
+                
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+
+</div><!-- /.myModal -->
+
+<script type="text/javascript">
+    document.getElementById('user_enable').value="{{user_enable}}"
+    if ("{{edit}}" == "") {
+        $('#myModal').modal('hide')
+    }
+    else{
+        $('#myModal').modal('show')
+    }
+</script>
+
+{% endblock %}
+
+{% block body_table %}
+
+        <table class="table" >
+            <thead>
+                <tr class="active">
+                    {% for l in items %}
+                        <th>{{l}}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+        <tbody id="listtab">
+            {% for list in values %}
+
+            <tr >
+                 <td>{{list.name}}</td>
+
+                {% if list.enable  %}
+                <td><span class="label label-success">启用</span></td>
+                {% else %}
+                <td><span class="label label-danger">禁用</span></td>
+                {% endif %}
+                <td>
+                    <div class="pull-right" >
+                        {% csrf_token %}
+                        {% if list.enable %}
+                            <button type="submit" class="btn btn-warning btn-sm" name="disable" title="{{list.id}}" value="{{list.id}}">
+                            <span  >禁用</span>
+                            </button>
+                        {% else %}
+                            <button type="submit" class="btn btn-success btn-sm" name="enable" title="{{list.id}}" value="{{list.id}}">
+                            <span  >启用</span>
+                            </button>
+                        {% endif %}
+
+                        <button type="submit" class="btn btn-info btn-sm" name="edit" title="{{list.id}}" value="{{list.id}}">
+                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                        </button>
+
+                        
+                        
+                        
+                        <button type="submit"  class="btn btn-danger btn-sm" name="del" title="{{list.id}}" value="{{list.id}}">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true" ></span>
+                        </button>
+                    </div>
+                </td>
+
+
+            </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+        {% if  values|length > 0 and values.paginator.num_pages > 1 %}
+            <div class="pagination">
+            <button class="btn btn-default"  type="submit" name="page" value="1">
+                <!--<span class="glyphicon glyphicon-fast-backward" aria-hidden="true"></span>-->
+                &laquo;
+            </button>
+            {% if values.has_previous %}
+                <button class="btn btn-default" type="submit" name="page" value="{{ values.previous_page_number }}">
+                    <!--<span class="glyphicon glyphicon-backward" aria-hidden="true"></span>-->
+                    &#8249;
+                </button>
+            {%else%}
+                <button class="btn btn-default" disabled type="submit" name="page" value="">
+                    <!--<span class="glyphicon glyphicon-backward" aria-hidden="true"></span>-->
+                    &#8249;
+                </button>
+            {% endif %}
+            <span> Page <input type="text" class="form-control"  size=1 name="pagenum" value="{{ values.number }}">  of {{ values.paginator.num_pages }}  </span>
+
+            {% if values.has_next %}
+                <button class="btn btn-default" type="submit" name="page" value="{{ values.next_page_number }}">
+                    <!--<span class="glyphicon glyphicon-forward" aria-hidden="true"></span>-->
+                    &#8250;
+                </button>
+            {%else%}
+                <button class="btn btn-default" disabled type="submit" name="page" value="">
+                    <!--<span class="glyphicon glyphicon-forward" aria-hidden="true"></span>-->
+                    &#8250;
+                </button>
+            {% endif %}
+            <button class="btn btn-default"  type="submit" name="page" value="{{ values.paginator.num_pages }}">
+                <!--<span class="glyphicon glyphicon-fast-forward" aria-hidden="true"></span>-->
+                &raquo;
+            </button>
+        </div>
+        {% endif %}
+</form>
+    {% endblock %}
