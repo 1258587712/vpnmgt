@@ -34,9 +34,6 @@ echo "#######mysql-community-server"
 [ ! -e /usr/bin/mysql -a ! -e /usr/local/mysql ] && (([ ${version} -eq 6 ] && rpm -ivh http://repo.mysql.com/mysql-community-release-el6-5.noarch.rpm  || rpm -ivh http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm ) && yum -y install mysql-community-server && chkconfig mysqld on && service mysqld start ) 
 
 
-
-
-
 ([ ! -e /usr/local/bin/pip -a ! -e /usr/bin/pip ] && (wget https://bootstrap.pypa.io/get-pip.py -O get-pip.py && python get-pip.py )) && \    
 pip install django==1.9.7  && \
 pip install pymysql && \
