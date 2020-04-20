@@ -61,7 +61,8 @@ pip install python-crontab
 start_app(){
 if [ $(netstat -lntp |grep -c ':8080 ') -eq 0 ] ;then 
     echo "Port ${1} is starting ..."
-    python ${workdir}/manage.py runserver 0.0.0.0:${1}
+    nohup python ${workdir}/manage.py runserver 0.0.0.0:${1} >>${workdir}.log 2>&1 &
+		
 else
     echo "Port ${1} is started" && exit 1
     
@@ -89,11 +90,6 @@ if [ $# -eq 2 ];then
     #echo $workdir
     project_name=$(grep settings  ${workdir}/manage.py |sed 's#"##g' |sed 's# ##g' |cut -d ',' -f 2 |cut -d '.' -f 1)
     
-    if [ ! -e /usr/bin/mysql ] \
-	&& [ ! -e /usr/local/mysql ];then
-        cron_install
-    fi
-    
     case $2 in        
         init)            
             #if [ $(mysql -e 'show databases;' |grep -c "^${project_name}$") -eq 0 ];
@@ -110,7 +106,7 @@ if [ $# -eq 2 ];then
 			if [ ! -e /usr/local/bin/pip -a ! -e /usr/bin/pip ]; then            
                 init_project				
                 update_db
-            fi            
+            fi          
             start_app ${1}            
         ;;
         update)
