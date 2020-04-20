@@ -108,15 +108,13 @@ if [ $# -eq 2 ];then
         start)            
             #if [ $(mysql -e 'show databases;' |grep -c "^${project_name}$") -eq 0 ];
 			if [ ! -e /usr/local/bin/pip -a ! -e /usr/bin/pip ]; then            
-                init_project
-				
+                init_project				
                 update_db
             fi            
             start_app ${1}            
         ;;
         update)
-            if [ ! -e /usr/local/bin/pip -a ! -e /usr/bin/pip ]; then
-            then
+            if [ ! -e /usr/local/bin/pip -a ! -e /usr/bin/pip ]; then            
                 echo "Start to install"
                 init_project
 				
