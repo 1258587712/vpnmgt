@@ -1390,7 +1390,8 @@ def svc_start_to_check_systemenv():
         
     
 if sys.argv[1] == 'runserver':
-    svc_start_to_check_systemenv()
+    if sys.platform != 'win32':
+        svc_start_to_check_systemenv()
 
     
 
